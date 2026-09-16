@@ -36,4 +36,5 @@ jobs:
             docker rm weather-container 2>/dev/null || true
             docker run -d -p 3000:3000 \
               --name weather-container \
+              --env-file /home/${{ secrets.SERVER_USER }}/.env \
               ${{ secrets.DOCKER_USERNAME }}/weather-app:latest
