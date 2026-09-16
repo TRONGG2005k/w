@@ -32,9 +32,8 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/w
-            docker stop express-shadowing-api || true
-            docker rm express-shadowing-api || true
+            docker stop w || true
+            docker rm w || true
             docker run -d -p 3000:3000 \
-              --name express-shadowing-api \
-              --env-file /home/${{ secrets.SERVER_USER }}/app/.env \
+              --name w \
               ${{ secrets.DOCKER_USERNAME }}/w
