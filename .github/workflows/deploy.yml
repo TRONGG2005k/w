@@ -18,10 +18,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/w .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/weather-app:latest .
 
       - name: Push image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/w
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/weather-app:latest
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
@@ -31,9 +31,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/w
-            docker stop w || true
-            docker rm w || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/weather-app:latest
+            docker stop weather-container 2>/dev/null || true
+            docker rm weather-container 2>/dev/null || true
             docker run -d -p 3000:3000 \
-              --name w \
-              ${{ secrets.DOCKER_USERNAME }}/w
+              --name weather-container \
+              ${{ secrets.DOCKER_USERNAME }}/weather-app:latest
