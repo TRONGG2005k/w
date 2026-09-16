@@ -1,0 +1,40 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/w .
+
+      - name: Push image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/w
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/w
+            docker stop express-shadowing-api || true
+            docker rm express-shadowing-api || true
+            docker run -d -p 3000:3000 \
+              --name express-shadowing-api \
+              --env-file /home/${{ secrets.SERVER_USER }}/app/.env \
+              ${{ secrets.DOCKER_USERNAME }}/w
