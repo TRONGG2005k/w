@@ -18,7 +18,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/weather-app:latest .
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_WEATHER_API_KEY=${{ secrets.NEXT_PUBLIC_WEATHER_API_KEY }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/weather-app:latest .
 
       - name: Push image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/weather-app:latest
